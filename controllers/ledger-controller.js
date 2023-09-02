@@ -2,22 +2,30 @@ const { autoChain } = require("../utilities/config.js");
 const Keys = require("../models/keyGenerator.js");
 
 exports.createPerson = (req, res) => {
-  const { name } = req.body;
-  const keys = new Keys();
-  const publicKey = keys.formatPublicKey();
-  const transaction = { type: "newPerson", details: { name, publicKey } };
+  let { name, publicKey } = req.body;
+  let keys;
+  if (!publicKey) {
+    keys = new Keys();
+    publicKey = keys.formatPublicKey();
+  }
+  const transaction = {
+    transactionType: "newPerson",
+    details: { name, publicKey },
+  };
   autoChain.addTransactionToPendingTransactions(transaction);
-  res.status(201).json({ success: true, data: { name, keys } });
+  res.status(201).json({ success: true, data: { name, publicKey } });
 };
 
 exports.createCar = (req, res) => {
   const { vin, make, model, year, owner } = req.body;
   const transaction = {
-    type: "newCar",
+    transactionType: "newCar",
     details: { vin, make, model, year, owner },
   };
   autoChain.addTransactionToPendingTransactions(transaction);
-  res.status(201).json({ success: true, data: { vin, make, model, year } });
+  res
+    .status(201)
+    .json({ success: true, data: { vin, make, model, year, owner } });
 };
 
 exports.createDealership = (req, res) => {
@@ -25,32 +33,45 @@ exports.createDealership = (req, res) => {
   const keys = new Keys();
   const publicKey = keys.formatPublicKey();
   const transaction = {
-    type: "newDealership",
+    transactionType: "newDealership",
     details: { name, location, publicKey },
-    encryptedTransaction,
   };
   autoChain.addTransactionToPendingTransactions(transaction);
+  res.status(201).json({ success: true, data: { name, location, publicKey } });
 };
+//  ------------------      INTE KLAR ------------------//
+// exports.changeCarOwner = (req, res) => {
+//   const { vin, owner, newOwner, encryptedTransaction } = req.body;
+//   const keys = new Keys({ publicKey: owner });
+//   const transaction = {
+//     transactionType: "newOwner",
+//     details: { vin, owner: newOwner },
+//     encryptedTransaction,
+//   };
+//   if (vin + newOwner === keys.decryptWithPublicKey(encryptedTransaction)) {
+//     autoChain.addTransactionToPendingTransactions(transaction);
+//   }
+//   res
+//     .status(201)
+//     .json({ success: true, data: { encryptedTransaction, newOwner, vin } });
+// };
 
-exports.changeCarOwner = (req, res) => {
-  const { vin, owner, newOwner, encryptedTransaction } = req.body;
-  const keys = new Keys({ publicKey: owner });
-  if (vin + newOwner === keys.decryptWithPublicKey(encryptedTransaction)) {
-    autoChain.addTransactionToPendingTransactions(transaction);
-  }
-};
+// exports.addCarService = (req, res) => {
+//   const { vin, service, owner, privateKey } = req.body;
+//   const keys = new Keys({ privateKey, publicKey: owner });
+//   console.log(keys.privateKey.toString());
+//   const encryptedTransaction = keys.encryptWithPrivateKey(vin + service);
+//   const transaction = {
+//     transactionType: "newService",
+//     details: { vin, service, publicKey: owner },
+//     encryptedTransaction,
+//   };
 
-exports.addCarService = (req, res) => {
-  const { vin, service, owner, encryptedTransaction } = req.body;
-  const keys = new Keys({ publicKey: owner });
-  const transaction = {
-    type: "newService",
-    details: { vin, service, publicKey: owner },
-    encryptedTransaction,
-  };
-
-  if (vin + service === keys.decryptWithPublicKey(encryptedTransaction)) {
-    transaction = {};
-    autoChain.addTransactionToPendingTransactions(transaction);
-  }
-};
+//   if (vin + service === keys.decryptWithPublicKey(encryptedTransaction)) {
+//     transaction = {};
+//     autoChain.addTransactionToPendingTransactions(transaction);
+//   }
+//   res
+//     .status(201)
+//     .json({ success: true, data: { encryptedTransaction, newOwner, vin } });
+// };

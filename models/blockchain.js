@@ -4,13 +4,20 @@ const Keys = require("./keyGenerator.js");
 
 class Blockchain {
   constructor() {
-    this.chain = [];
+    this.chain = [
+      {
+        index: 1,
+        timestamp: 1693584518776,
+        transactions: [],
+        nonce: 1,
+        hash: "Genesis",
+        previousBlockHash: "Genesis",
+      },
+    ];
     this.pendingTransactions = [];
     this.ledger = { cars: [], owners: [], dealerships: [] };
     this.nodeUrl = process.argv[3];
     this.networkNodes = [];
-
-    this.createNewBlock(1, "Genesis", "Genesis");
   }
 
   createNewBlock(nonce, previousBlockHash, hash) {
@@ -30,13 +37,14 @@ class Blockchain {
     newBlock.transactions.map((transaction) => {
       switch (transaction.transactionType) {
         case "newCar":
-          // const { name, publicKey, location, vin, make, model, year, owner } =
-          //   transaction.details;
-          // if (vin && make && model && year && owner)
-          this.ledger.cars.push(transaction.details);
+          const { name, publicKey, location, vin, make, model, year, owner } =
+            transaction.details;
+          if (vin && make && model && year && owner)
+            this.ledger.cars.push(transaction.details);
           break;
         case "newPerson":
-          // if (name && publicKey) this.ledger.owners.push(transaction.details);
+          // if (name && publicKey)
+          this.ledger.owners.push(transaction.details);
           break;
         case "newDealership":
           // if (name && location && publicKey)
@@ -67,17 +75,6 @@ class Blockchain {
   getLastBlock() {
     return this.chain[this.chain.length - 1];
   }
-
-  // createNewTransaction() {
-  //   const newTransaction = {
-  //     amount: amount,
-  //     sender: sender,
-  //     recipient: recipient,
-  //     transactionId: uuidv4().split("-").join(""),
-  //   };
-
-  //   return newTransaction;
-  // }
 
   addTransactionToPendingTransactions(transaction) {
     this.pendingTransactions.push(transaction);
@@ -155,32 +152,5 @@ class Blockchain {
     });
     return { block: correctBlock, transaction: correctTransaction };
   }
-
-  listTransactions(address) {
-    let transactions = [];
-    let balance = 0;
-
-    this.chain.forEach((block) => {
-      block.transactions.forEach((transaction) => {
-        if (
-          transaction.sender === address ||
-          transaction.recipient === address
-        ) {
-          transactions.push(transaction);
-        }
-      });
-    });
-
-    transactions.forEach((transaction) => {
-      if (transaction.recipient === address) {
-        console.log(transaction.amount);
-        balance += Number(transaction.amount);
-      } else if (transaction.sender === address) {
-        balance -= Number(transaction.amount);
-      }
-    });
-    return { transactions, balance };
-  }
-  // Car service
 }
 module.exports = Blockchain;

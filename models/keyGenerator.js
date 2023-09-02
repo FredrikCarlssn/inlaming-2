@@ -11,6 +11,7 @@ class Keys {
       const { privateKey, publicKey } = this.generateKeys("test");
       this.privateKey = privateKey;
       this.publicKey = publicKey;
+      console.log(this.publicKey.toString());
     }
   }
 
@@ -32,15 +33,10 @@ class Keys {
     return { privateKey, publicKey };
   }
 
-  encryptWithPrivateKey(privateKey, message) {
+  encryptWithPrivateKey(message) {
+    console.log(this.privateKey.toString());
     const buffer = Buffer.from(message, "utf-8");
-    const encrypted = crypto.privateEncrypt(
-      {
-        key: privateKey.toString(),
-        passphrase: "test",
-      },
-      buffer
-    );
+    const encrypted = crypto.privateEncrypt(this.privateKey.toString(), buffer);
     return encrypted.toString("base64");
   }
 
@@ -63,7 +59,7 @@ class Keys {
       ""
     );
     privateKeyString = privateKeyString.replace(
-      /@-----END ENCRYPTED PRIVATE KEY-----/g,
+      /@-----END ENCRYPTED PRIVATE KEY-----@/g,
       ""
     );
     return privateKeyString;
@@ -77,7 +73,10 @@ class Keys {
       /-----BEGIN PUBLIC KEY-----@/g,
       ""
     );
-    publicKeyString = publicKeyString.replace(/@-----END PUBLIC KEY-----/g, "");
+    publicKeyString = publicKeyString.replace(
+      /@-----END PUBLIC KEY-----@/g,
+      ""
+    );
     return publicKeyString;
   }
 
@@ -101,7 +100,7 @@ class Keys {
       "-----BEGIN PUBLIC KEY-----@" + publicKey + "@-----END PUBLIC KEY-----";
     publicKey = publicKey.split("@").join("\n");
     const newPrivateKey = crypto.createPublicKey({
-      key: privateKey.toString(),
+      key: publicKey.toString(),
       type: "spki",
       format: "pem",
     });

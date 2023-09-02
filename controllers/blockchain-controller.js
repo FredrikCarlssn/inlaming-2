@@ -1,4 +1,4 @@
-const { autoChain, nodeAddress } = require("../utilities/config.js");
+const { autoChain } = require("../utilities/config.js");
 const axios = require("axios");
 
 exports.getBlockchain = (req, res) => {
@@ -24,8 +24,8 @@ exports.mineBlock = async (req, res) => {
     blockHash
   );
 
-  autoChain.networkNodes.forEach(async (networkNodeUrl) => {
-    await axios.post(`${networkNodeUrl}/api/block`, { block: newBlock });
+  autoChain.networkNodes.map(async (networkNodeUrl) => {
+    await axios.post(`${networkNodeUrl}/api/v1/block`, { block: newBlock });
   });
 
   autoChain.emptyPendingTransactions(newBlock);

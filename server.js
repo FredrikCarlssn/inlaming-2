@@ -9,8 +9,8 @@ const consensus = require("./routes/consensus-routes");
 const ledger = require("./routes/ledger-routes");
 
 const app = express();
-
 const PORT = process.argv[2];
+console.log(PORT);
 
 const Blockchain = require("./models/blockchain");
 
